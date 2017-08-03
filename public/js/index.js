@@ -9,9 +9,6 @@ socket.on('disconnect', () => {
     console.log('Disconnected from server')
 });
 
-socket.on('newEmail', (email) => {
-   console.log(email);
-});
 
 socket.on('newMessage', (message) => {
     console.log(message)
