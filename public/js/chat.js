@@ -35,13 +35,13 @@ socket.on('disconnect', () => {
 });
 
 socket.on('updateUserList', (users) => {
-    const ol = $('<ul></ul>');
+    const ul = $('<ul></ul>');
 
     users.forEach((user) => {
-       ol.append($('<li></li>').text(user));
+       ul.append($('<li></li>').text(user));
     });
 
-    $('#users').html(ol);
+    $('#users').html(ul);
 });
 
 socket.on('newMessage', (message) => {
@@ -75,7 +75,6 @@ $('#message-form').on('submit', (e) => {
     e.preventDefault();
     const $messageTextbox = $('[name=message]');
     socket.emit('createMessage', {
-        from: 'User',
         text: $messageTextbox.val()
     }, () => {
         $messageTextbox.val('');
