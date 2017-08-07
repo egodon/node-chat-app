@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server/server.js",
     "test": "mocha server/**/*.test.js --color",
-    "watch:text": "nodemon --exec 'npm test'"
+    "watch:test": "nodemon --exec npm test"
   },
   "engines": {
     "node": "6.9.1"
