@@ -1,0 +1,6 @@
+
+1. Show active rooms (push rooms to an array and then send them to client)
+
+2.Ban swear words
+
+3.Clamp together messages from same person

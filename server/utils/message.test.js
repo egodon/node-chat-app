@@ -12,17 +12,3 @@ describe('generateMessage', () => {
         expect(message).toInclude({from, text});
     });
 });
-
-describe('generateLocationMessage', () => {
-    it('should generate correct location object', () => {
-       const from = 'Alec';
-       const latitude = '23';
-       const longitude = '25';
-       const url = 'https://www.google.com/maps?q=23,25';
-       const location = (generateLocationMessage(from, latitude, longitude));
-
-       expect(location.createdAt).toBeA('number');
-       expect(location).toInclude({from, url});
-
-    });
-})

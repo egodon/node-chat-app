@@ -8,12 +8,11 @@ const generateMessage = (from, text) => {
     };
 };
 
-const generateLocationMessage = (from, latitude, longitude) => {
+const generateAdminMessage = (text) => {
     return {
-        from,
-        url: `https://www.google.com/maps?q=${latitude},${longitude}`,
+        text,
         createdAt: moment().valueOf()
     }
 }
 
-module.exports = {generateMessage, generateLocationMessage};
+module.exports = {generateMessage, generateAdminMessage};

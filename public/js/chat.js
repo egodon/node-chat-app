@@ -1,4 +1,4 @@
-const socket = io();
+const client = io();
 
 
 function scrollToBottom() {
@@ -17,34 +17,61 @@ function scrollToBottom() {
     }
 }
 
-socket.on('connect', () => {
+client.on('connect', () => {
     const params= jQuery.deparam(window.location.search);
 
-    socket.emit('join', params, (err) => {
+    client.emit('join', params, (err) => {
         if (err){
             alert(err);
             window.location.href = '/'
         } else {
-            console.log('No error');
+            console.log('No errors');
         }
     });
 });
 
-socket.on('disconnect', () => {
+client.on('disconnect', () => {
     console.log('Disconnected from server')
 });
 
-socket.on('updateUserList', (users) => {
+client.on('updateUserList', (users) => {
     const ul = $('<ul></ul>');
-
     users.forEach((user) => {
        ul.append($('<li></li>').text(user));
     });
-
     $('#users').html(ul);
 });
 
-socket.on('newMessage', (message) => {
+client.on('fillRoomWithMessages', (messages) => {
+    const template = $('#message-template').html();
+    messages.forEach((message) => {
+        const formattedTime = moment(message.created).format('h:mm a');
+        const html = Mustache.render(template, {
+            from: message.from,
+            text: message.text,
+            createdAt: formattedTime
+        });
+
+        $('#messages').append(html);
+        scrollToBottom();
+    })
+});
+
+// Admin messages
+client.on('adminMessage', (message) => {
+    const formattedTime = moment(message.created).format('h:mm a');
+    const template = $('#message-template').html();
+    const html = Mustache.render(template, {
+        text: message.text,
+        createdAt: formattedTime
+    });
+
+    $('#messages').append(html);
+    scrollToBottom();
+});
+
+
+client.on('newMessage', (message) => {
     const formattedTime = moment(message.created).format('h:mm a');
     const template = $('#message-template').html();
     const html = Mustache.render(template, {
@@ -58,45 +85,17 @@ socket.on('newMessage', (message) => {
 
 });
 
-socket.on('newLocationMessage', (message) => {
-    const formattedTime = moment(message.created).format('h:mm a');
-    const template = $('#location-message-template').html();
-    const html = Mustache.render(template, {
-        from: message.from,
-        url: message.url,
-        createdAt: formattedTime
-    });
 
-    $('#messages').append(html);
-    scrollToBottom();
-});
+
+
 
 $('#message-form').on('submit', (e) => {
     e.preventDefault();
     const $messageTextbox = $('[name=message]');
-    socket.emit('createMessage', {
+    client.emit('createMessage', {
         text: $messageTextbox.val()
     }, () => {
         $messageTextbox.val('');
     });
 });
 
-const $locationButton = $('#send-location');
-$locationButton.on('click', () => {
-   if(!navigator.geolocation){
-       return alert('Geolocation not supported by your browser.')
-   }
-
-   $locationButton.attr('disabled', 'disabled').text('Sending location...');
-
-   navigator.geolocation.getCurrentPosition((position) => {
-       $locationButton.removeAttr('disabled').text('Send location');
-        socket.emit('createLocationMessage', {
-            latitude: position.coords.latitude,
-            longiture: position.coords.longitude
-        })
-   }, () => {
-       $locationButton.removeAttr('disabled').text('Send location');
-       alert('Unable to fetch location.')
-   })
-});

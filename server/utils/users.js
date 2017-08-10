@@ -11,8 +11,8 @@ class Users {
     removeUser (id){
         let user = this.getUser(id);
 
-        if (user){
-            this.users = this.users.filter((users) => user.id !== id);
+        if (user) {
+            this.users = this.users.filter((user) => user.id !== id);
         }
 
         return user;
