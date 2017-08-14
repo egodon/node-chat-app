@@ -1,7 +1,5 @@
 const webpack = require('webpack');
 
-
-
 module.exports = {
     entry: './public/js/main.js',
     output: {
@@ -16,7 +14,6 @@ module.exports = {
     ],
     module: {
         loaders: [
-
             {
                 test: /\.css$/,
                 use: [
