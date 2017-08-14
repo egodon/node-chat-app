@@ -4,14 +4,14 @@ const generateMessage = (from, text) => {
     return {
         from,
         text,
-        createdAt: moment().valueOf()
+        createdAt: moment().format('h:mm a')
     };
 };
 
 const generateAdminMessage = (text) => {
     return {
         text,
-        createdAt: moment().valueOf()
+        createdAt: moment().format('h:mm a')
     }
 }
 

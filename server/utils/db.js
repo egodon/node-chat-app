@@ -29,22 +29,32 @@ class Mongo {
                 return console.log(err);
             }
 
-            let addThisMessage = new Message({
-                from: message.from,
-                text:  message.text,
-                createdAt:  message.createdAt
-            });
+            if (message){
+                let addThisMessage = new Message({
+                    from: message.from,
+                    text:  message.text,
+                    createdAt:  message.createdAt
+                });
 
-            toThisRoom.messages.push(addThisMessage);
-            toThisRoom.save((err) => {
-                if (err) {
-                    return console.log(err);
-                }
-            });
+                toThisRoom.messages.push(addThisMessage);
+                toThisRoom.save((err) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                });
+            }
         });
     }
     getRoomsFromDB () {
-
+        const query = Room.find();
+        return query.exec((err, room) => {
+            if (err) {
+                return console.log(err)
+            }
+            if (room) {
+                return room.name
+            }
+        });
     }
 
     getMessagesFromRoom (fromThisRoom) {

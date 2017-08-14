@@ -26,7 +26,6 @@ mongoose.connect('mongodb://egodon:kiwi123@ds035664.mlab.com:35664/chatapp');
 mongoose.Promise = global.Promise;
 let db  = mongoose.connection;
 
-const {saveRoomToDB, saveMessageToDB} = require('./utils/db');
 
 //Check connection
 db.once('open', () => {
@@ -41,7 +40,6 @@ db.on('error', (err) => {
 //-------------------- SOCKET.IO ------------------------
 
 io.on('connection', (socket) => {
-
 
     socket.on('join', (params, callback) => {
         if (!isRealString(params.name) || !isRealString(params.room)) {
@@ -62,9 +60,9 @@ io.on('connection', (socket) => {
             }
         });
 
-        io.to(params.room).emit('updateUserList', users.getUserList(room));
-        socket.emit('adminMessage', generateAdminMessage(`Welcome to room ${params.room}`));
-        socket.broadcast.to(params.room).emit('adminMessage', generateAdminMessage(`${params.name} has joined.`));
+        io.to(room).emit('updateUserList', users.getUserList(room));
+        socket.emit('adminMessage', generateAdminMessage(`Welcome to room '${params.room}'`));
+        socket.broadcast.to(room).emit('adminMessage', generateAdminMessage(`${params.name} has joined.`));
         callback();
 
 
@@ -74,12 +72,13 @@ io.on('connection', (socket) => {
         const user = users.getUser(socket.id);
         let newMessage;
         if (user && isRealString(message.text)) {
-             newMessage= generateMessage(user.name, message.text);
+            newMessage= generateMessage(user.name, message.text);
             io.to(user.room).emit('newMessage', newMessage);
+            mongo.saveMessageToDB(newMessage, user.room);
         }
         callback();
 
-        mongo.saveMessageToDB(newMessage, user.room);
+
 
     });
 

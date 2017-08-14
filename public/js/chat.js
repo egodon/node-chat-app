@@ -1,21 +1,7 @@
+const Mustache = require('mustache');
+const io = require('socket.io-client');
 const client = io();
 
-
-function scrollToBottom() {
-    // Selectors
-    const $messages = $('#messages');
-    const newMessage = $messages.children('li:last-child');
-    // Heights
-    const clientHeight = $messages.prop('clientHeight');
-    const scrollTop = $messages.prop('scrollTop');
-    const scrollHeight = $messages.prop('scrollHeight');
-    const newMessageHeight = newMessage.innerHeight();
-    const lastMessageHeight = newMessage.prev().innerHeight();
-
-    if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight){
-        $messages.scrollTop(scrollHeight);
-    }
-}
 
 client.on('connect', () => {
     const params= jQuery.deparam(window.location.search);
@@ -45,11 +31,10 @@ client.on('updateUserList', (users) => {
 client.on('fillRoomWithMessages', (messages) => {
     const template = $('#message-template').html();
     messages.forEach((message) => {
-        const formattedTime = moment(message.created).format('h:mm a');
         const html = Mustache.render(template, {
             from: message.from,
             text: message.text,
-            createdAt: formattedTime
+            createdAt: message.createdAt
         });
 
         $('#messages').append(html);
@@ -59,11 +44,10 @@ client.on('fillRoomWithMessages', (messages) => {
 
 // Admin messages
 client.on('adminMessage', (message) => {
-    const formattedTime = moment(message.created).format('h:mm a');
     const template = $('#message-template').html();
     const html = Mustache.render(template, {
         text: message.text,
-        createdAt: formattedTime
+        createdAt: message.createdAt
     });
 
     $('#messages').append(html);
@@ -72,20 +56,17 @@ client.on('adminMessage', (message) => {
 
 
 client.on('newMessage', (message) => {
-    const formattedTime = moment(message.created).format('h:mm a');
     const template = $('#message-template').html();
     const html = Mustache.render(template, {
         text: message.text,
         from: message.from,
-        createdAt: formattedTime
+        createdAt: message.createdAt
     });
 
     $('#messages').append(html);
     scrollToBottom();
 
 });
-
-
 
 
 
@@ -98,4 +79,20 @@ $('#message-form').on('submit', (e) => {
         $messageTextbox.val('');
     });
 });
+
+function scrollToBottom() {
+    // Selectors
+    const $messages = $('#messages');
+    const newMessage = $messages.children('li:last-child');
+    // Heights
+    const clientHeight = $messages.prop('clientHeight');
+    const scrollTop = $messages.prop('scrollTop');
+    const scrollHeight = $messages.prop('scrollHeight');
+    const newMessageHeight = newMessage.innerHeight();
+    const lastMessageHeight = newMessage.prev().innerHeight();
+
+    if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight){
+        $messages.scrollTop(scrollHeight);
+    }
+}
 
