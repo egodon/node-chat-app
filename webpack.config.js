@@ -1,10 +1,13 @@
 const webpack = require('webpack');
 
 module.exports = {
-    entry: './public/js/main.js',
+    entry: {
+        index: './public/js/index.js',
+        chat: './public/js/chat.js'
+    },
     output: {
         path: __dirname + '/public',
-        filename: 'bundle.js'
+        filename: '[name].bundle.js'
     },
     plugins: [
         new webpack.ProvidePlugin({

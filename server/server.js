@@ -53,8 +53,8 @@ io.on('connection', (socket) => {
         mongo.saveRoomToDB(room);
 
         // Add messages to room from DB
-        const messagesPromise = mongo.getMessagesFromRoom(room);
-        messagesPromise.then((roomExists) => {
+        const getMessagesPromise = mongo.getMessagesFromRoom(room);
+        getMessagesPromise.then((roomExists) => {
             if (roomExists && roomExists.messages.length > 0) {
                 socket.emit('fillRoomWithMessages', roomExists.messages);
             }
@@ -64,8 +64,6 @@ io.on('connection', (socket) => {
         socket.emit('adminMessage', generateAdminMessage(`Welcome to room '${params.room}'`));
         socket.broadcast.to(room).emit('adminMessage', generateAdminMessage(`${params.name} has joined.`));
         callback();
-
-
     });
 
     socket.on('createMessage', (message, callback) => {
@@ -78,8 +76,14 @@ io.on('connection', (socket) => {
         }
         callback();
 
+    });
 
-
+    socket.on('getRooms', () => {
+        let getRoomsPromise = mongo.getRoomsFromDB();
+        getRoomsPromise.then(rooms => {
+            let roomNames = rooms.map(room => room.name);
+            socket.emit('sendRooms', roomNames);
+        })
     });
 
 

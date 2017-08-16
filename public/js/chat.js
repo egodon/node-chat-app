@@ -2,6 +2,13 @@ const Mustache = require('mustache');
 const io = require('socket.io-client');
 const client = io();
 
+// CSS
+import '../css/styles.css';
+
+// JS
+import scrollToBottom from './modules/scrollToBottom';
+import './libs/deparam';
+
 
 client.on('connect', () => {
     const params= jQuery.deparam(window.location.search);
@@ -80,19 +87,4 @@ $('#message-form').on('submit', (e) => {
     });
 });
 
-function scrollToBottom() {
-    // Selectors
-    const $messages = $('#messages');
-    const newMessage = $messages.children('li:last-child');
-    // Heights
-    const clientHeight = $messages.prop('clientHeight');
-    const scrollTop = $messages.prop('scrollTop');
-    const scrollHeight = $messages.prop('scrollHeight');
-    const newMessageHeight = newMessage.innerHeight();
-    const lastMessageHeight = newMessage.prev().innerHeight();
-
-    if (clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight){
-        $messages.scrollTop(scrollHeight);
-    }
-}
 

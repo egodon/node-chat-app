@@ -4,7 +4,9 @@
   "description": "",
   "main": "server/server.js",
   "scripts": {
-    "start": "node server/server.js",
+    "start": "npm-run-all -p nodemon watch:webpack",
+    "nodemon": "nodemon",
+    "watch:webpack": "webpack --watch --colors",
     "test": "mocha server/**/*.test.js --color",
     "watch:test": "nodemon --exec npm test"
   },
@@ -21,6 +23,7 @@
     "expect": "^1.20.2",
     "mocha": "^3.0.2",
     "nodemon": "^1.11.0",
+    "npm-run-all": "^4.0.2",
     "postcss-loader": "^2.0.6"
   },
   "dependencies": {

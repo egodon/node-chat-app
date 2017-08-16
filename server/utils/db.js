@@ -46,13 +46,10 @@ class Mongo {
         });
     }
     getRoomsFromDB () {
-        const query = Room.find();
-        return query.exec((err, room) => {
+        const query = Room.find({});
+        return query.exec((err) => {
             if (err) {
                 return console.log(err)
-            }
-            if (room) {
-                return room.name
             }
         });
     }
