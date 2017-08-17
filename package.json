@@ -4,11 +4,12 @@
   "description": "",
   "main": "server/server.js",
   "scripts": {
-    "start": "npm-run-all -p nodemon watch:webpack",
+    "start": "npm-run-all -p watch:webpack nodemon open-browser",
     "nodemon": "nodemon",
-    "watch:webpack": "webpack --watch --colors",
+    "watch:webpack": "webpack --watch --progress --colors",
     "test": "mocha server/**/*.test.js --color",
-    "watch:test": "nodemon --exec npm test"
+    "watch:test": "nodemon --exec npm test",
+    "open-browser": "sleepms 3000 && start http://localhost:3000"
   },
   "engines": {
     "node": "6.9.1"
@@ -24,7 +25,8 @@
     "mocha": "^3.0.2",
     "nodemon": "^1.11.0",
     "npm-run-all": "^4.0.2",
-    "postcss-loader": "^2.0.6"
+    "postcss-loader": "^2.0.6",
+    "sleep-ms": "^2.0.1"
   },
   "dependencies": {
     "css-loader": "^0.28.4",

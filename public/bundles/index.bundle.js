@@ -14180,7 +14180,7 @@ exports = module.exports = __webpack_require__(26)(undefined);
 
 
 // module
-exports.push([module.i, "button,button:hover{border:none;color:#fff;padding:10px}.chat__messages,.chat__sidebar ul{list-style-type:none}*{box-sizing:border-box;margin:0;padding:0;font-family:HelveticaNeue-Light,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif;font-weight:300;font-size:.95rem}li,ul{list-style-position:inside}h1{font-weight:600;text-align:center;font-size:1.5rem}button{background:#265f82;cursor:pointer;transition:background .3s ease}button:hover{background:#1f4c69}button:disabled{cursor:default;background:#698ea5}.centered-form{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;height:100vh;width:100vw;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;background:linear-gradient(325deg,#276b82,#315481)}.centered-form__form{background:hsla(0,0%,98%,.9);border:1px solid #e1e1e1;border-radius:5px;padding:0 20px;margin:20px;width:230px}.form-field{margin:20px 0}.form-field>*{width:100%}.form-field label{display:block;margin-bottom:7px}.form-field input,.form-field select{border:1px solid #e1e1e1;padding:10px}.chat{display:-webkit-box;display:-ms-flexbox;display:flex}.chat__sidebar{overflow-y:scroll;width:260px;height:100vh;background:linear-gradient(325deg,#276b82,#315481)}.chat__footer,.chat__sidebar li{background:#e6eaee;padding:10px}.chat__sidebar h3{color:#e6eaee;margin:10px 20px;text-align:left}.chat__sidebar li{border:1px solid #e1e1e1;border-radius:5px;margin:10px}.chat__main{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;height:100vh;width:100%}.chat__messages{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px}.chat__footer{-ms-flex-negative:0;flex-shrink:0}.chat__footer,.chat__footer form{display:-webkit-box;display:-ms-flexbox;display:flex}.chat__footer form{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1}.chat__footer form *{margin-right:10px}.chat__footer input{border:none;padding:10px;-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1}.message{padding:10px}.message__title{display:-webkit-box;display:-ms-flexbox;display:flex;margin-bottom:5px}.message__title h4{font-weight:600;margin-right:10px}span.time-stamp{color:#999;font-size:.75rem}@media (max-width:600px){*{font-size:1rem}.chat__sidebar{display:none}.chat__footer{-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column}.chat__footer form{margin-bottom:10px}.chat__footer button{margin-right:0}}", ""]);
+exports.push([module.i, "button,button:hover{border:none;color:#fff;padding:10px}.chat__messages,.chat__sidebar ul{list-style-type:none}*{box-sizing:border-box;margin:0;padding:0;font-family:Roboto,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif;font-weight:300;font-size:.95rem}li,ul{list-style-position:inside}h1{font-weight:600;text-align:center;font-size:1.5rem}button{background:#fbb03b;cursor:pointer;transition:background .3s ease}button:hover{background:#f9bd5e}button:disabled{cursor:default;background:#698ea5}.centered-form{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;height:100vh;width:100vw;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;background:#2e3192;background:-webkit-gradient(left top,right bottom,color-stop(0,#2e3192),color-stop(52%,#249ccb),color-stop(90%,#1deaf4),color-stop(100%,#1bffff));background:linear-gradient(135deg,#2e3192,#249ccb 52%,#1deaf4 90%,#1bffff);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#2e3192\",endColorstr=\"#1bffff\",GradientType=1)}.centered-form__form{background:hsla(0,0%,98%,.9);border:1px solid #e1e1e1;border-radius:5px;padding:20px 40px;margin:20px;width:310px}.form-field{margin:20px 0}.form-field>*{width:100%}.form-field label{display:block;margin-bottom:7px}.form-field input,.form-field select{border:1px solid #e1e1e1;padding:10px}.chat{display:-webkit-box;display:-ms-flexbox;display:flex}.chat__sidebar{overflow-y:scroll;width:260px;height:100vh;background:#2e3192;background:-webkit-gradient(left top,right bottom,color-stop(0,#2e3192),color-stop(52%,#249ccb),color-stop(90%,#1deaf4),color-stop(100%,#1bffff));background:linear-gradient(135deg,#2e3192,#249ccb 52%,#1deaf4 90%,#1bffff);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#2e3192\",endColorstr=\"#1bffff\",GradientType=1)}.chat__footer,.chat__sidebar li{background:#e6eaee;padding:10px}.chat__sidebar h3{color:#e6eaee;margin:10px 20px;text-align:left}.chat__sidebar li{border:1px solid #e1e1e1;border-radius:5px;margin:10px}.chat__main{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;height:100vh;width:100%}.chat__messages{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:10px}.chat__footer{-ms-flex-negative:0;flex-shrink:0}.chat__footer,.chat__footer form{display:-webkit-box;display:-ms-flexbox;display:flex}.chat__footer form{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1}.chat__footer form *{margin-right:10px}.chat__footer input{border:none;padding:10px;-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1}.message{padding:10px}.message__title{display:-webkit-box;display:-ms-flexbox;display:flex;margin-bottom:5px}.message__title h4{font-weight:600;margin-right:10px}span.time-stamp{color:#999;font-size:.75rem}@media (max-width:600px){*{font-size:1rem}.chat__sidebar{display:none}.chat__footer{-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column}.chat__footer form{margin-bottom:10px}.chat__footer button{margin-right:0}}", ""]);
 
 // exports
 
@@ -18920,27 +18920,45 @@ var io = __webpack_require__(30);
 var client = io();
 
 client.on('connect', function () {
-   client.emit('getRooms');
+    client.emit('getRooms');
+
+    // Check for input text in "Create Room" and disable "Current Rooms" selectoinif needed
+    var $createRoomInput = $('#create-room-input');
+    var $roomSelect = $('#room-selection');
+    $createRoomInput.change(function () {
+        if ($createRoomInput.val()) {
+            $roomSelect.prop('disabled', 'disabled');
+            $roomSelect.css('background', '#eee');
+            $roomSelect.children()[0].selected = 'selected';
+        } else {
+            $roomSelect.prop('disabled', false);
+            $roomSelect.css('background', '#ffffff');
+        }
+    });
 });
 
 client.on('sendRooms', function (rooms) {
-   var roomOptions = void 0;
+    var roomOptions = void 0;
 
-   if (rooms.length > 1) {
-      roomOptions = '<option selected="selected" disabled>Current Rooms</option>';
+    if (rooms.length > 1) {
+        roomOptions = '<option selected="selected" disabled>---------------------</option>';
 
-      rooms.forEach(function (roomName) {
-         roomName = roomName.replace(/\w\S*/g, function (txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-         });
-         roomOptions += '<option value="' + roomName + '">' + roomName + '</option>';
-      });
-   } else {
-      roomOptions = '<option selected="selected" value="">None</option>';
-   }
+        rooms.forEach(function (roomName) {
+            roomName = capitalizeFirstLetters(roomName);
+            roomOptions += '<option value="' + roomName + '">' + roomName + '</option>';
+        });
+    } else {
+        roomOptions = '<option selected="selected" value="">None</option>';
+    }
 
-   $('#room-selection').html(roomOptions);
+    $('#room-selection').html(roomOptions);
 });
+
+function capitalizeFirstLetters(word) {
+    return word.replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+}
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ })

@@ -6,7 +6,7 @@ module.exports = {
         chat: './public/js/chat.js'
     },
     output: {
-        path: __dirname + '/public',
+        path: __dirname + '/public/bundles',
         filename: '[name].bundle.js'
     },
     plugins: [

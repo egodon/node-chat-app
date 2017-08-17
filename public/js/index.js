@@ -6,16 +6,30 @@ import "../css/styles.css";
 
 client.on('connect', () => {
    client.emit('getRooms');
+
+   // Check for input text in "Create Room" and disable "Current Rooms" selectoinif needed
+    const $createRoomInput = $('#create-room-input');
+    const $roomSelect = $('#room-selection');
+    $createRoomInput.change( () => {
+        if ($createRoomInput.val()){
+            $roomSelect.prop('disabled', 'disabled');
+            $roomSelect.css('background','#eee');
+            $roomSelect.children()[0].selected = 'selected';
+        } else{
+            $roomSelect.prop('disabled', false);
+            $roomSelect.css('background','#ffffff');
+        }
+    });
 });
 
 client.on('sendRooms', (rooms) => {
     let roomOptions;
 
     if (rooms.length > 1){
-       roomOptions = '<option selected="selected" disabled>Current Rooms</option>';
+       roomOptions = '<option selected="selected" disabled>---------------------</option>';
 
        rooms.forEach(roomName => {
-           roomName = roomName.replace(/\w\S*/g, (txt) => { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()});
+           roomName = capitalizeFirstLetters(roomName);
            roomOptions += `<option value="${roomName}">${roomName}</option>`;
        });
    } else {
@@ -26,3 +40,9 @@ client.on('sendRooms', (rooms) => {
    $('#room-selection').html(roomOptions);
 });
 
+
+
+
+function capitalizeFirstLetters(word){
+    return word.replace(/\w\S*/g, (txt) => { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()});
+}

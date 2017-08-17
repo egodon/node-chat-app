@@ -5,14 +5,16 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="index.bundle.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <script src="/bundles/index.bundle.js"></script>
     <title>Join | ChatApp</title>
 </head>
 <body class="centered-form">
     <div class="centered-form__form">
         <form action="/chat.html">
             <div class="form-field">
-                <h1>Chat App</h1>
+                <h1>CHAT APP</h1>
+                <div class="header-under-line"></div>
             </div>
             <div class="form-field">
                 <label >Display name</label>
@@ -20,9 +22,10 @@
             </div>
             <div class="form-field">
                 <label>Create a Room</label>
-                <input type="text" name="room">
+                <input type="text" name="room" id="create-room-input">
             </div>
             <div class="form-field">
+                <label>Current Rooms</label>
                 <select id="room-selection" name="room">
                 </select>
             </div>
