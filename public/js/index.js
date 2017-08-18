@@ -1,4 +1,3 @@
-const Mustache = require('mustache');
 const io = require('socket.io-client');
 const client = io();
 
@@ -16,7 +15,7 @@ client.on('connect', () => {
             $roomSelect.prop('disabled', 'disabled');
             $roomSelect.css('background','#eee');
             $roomSelect.children()[0].selected = 'selected';
-        } else{
+        } else {
             $roomSelect.prop('disabled', false);
             $roomSelect.css('background','#ffffff');
         }
@@ -37,10 +36,8 @@ client.on('sendRooms', (rooms) => {
       roomOptions = '<option selected="selected" value="">None</option>'
    }
 
-
    $('#room-selection').html(roomOptions);
 });
-
 
 
 

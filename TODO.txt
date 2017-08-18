@@ -1,3 +1,6 @@
 
-1. Show active rooms (push rooms to an array and then send them to client)
-2. Clamp together messages from same person
+1. better validation on index
+
+2. Improve time stamps (time from now, 2 minutes ago.... + dates)
+
+3. Typing symbol appears when person is typing

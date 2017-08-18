@@ -16,6 +16,7 @@ const server = http.createServer(app);
 const io = socketIO(server);
 const users = new Users();
 const mongo = new Mongo();
+const swearjar = require('swearjar');
 
 app.use(express.static(publicPath));
 
@@ -42,6 +43,9 @@ io.on('connection', (socket) => {
         if (!isRealString(params.name) || !isRealString(params.room)) {
             return callback('Name and room name are required.')
         }
+        if (swearjar.profane(params.name) || swearjar.profane(params.room)){
+            return callback('Please refrain from using profanity in your display name or room name.')
+        }
         const room = params.room.toLowerCase();
         socket.join(room);
         users.removeUser(socket.id);
@@ -50,8 +54,7 @@ io.on('connection', (socket) => {
         mongo.saveRoomToDB(room);
 
         // Add messages to room from DB
-        const getMessagesPromise = mongo.getMessagesFromRoom(room);
-        getMessagesPromise.then((roomExists) => {
+        mongo.getMessagesFromRoom(room).then((roomExists) => {
             if (roomExists && roomExists.messages.length > 0) {
                 socket.emit('fillRoomWithMessages', roomExists.messages);
             }
@@ -76,8 +79,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('getRooms', () => {
-        let getRoomsPromise = mongo.getRoomsFromDB();
-        getRoomsPromise.then(rooms => {
+        mongo.getRoomsFromDB().then(rooms => {
             let roomNames = rooms.map(room => room.name);
             socket.emit('sendRooms', roomNames);
         })

@@ -1,9 +1,11 @@
 const moment = require('moment');
+const swearjar = require('swearjar');
 
 const generateMessage = (from, text) => {
+    let cleanText = swearjar.censor(text);
     return {
         from,
-        text,
+        text: cleanText,
         createdAt: moment().format('h:mm a')
     };
 };

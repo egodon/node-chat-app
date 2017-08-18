@@ -96,8 +96,10 @@ span.time-stamp {
 }
 
 /*BUTTONS*/
-.leave-room-btn {
-    margin: auto 30px 10px 30px;
+.leave-room-btn,
+.leave-room-btn:hover{
+    margin: auto 40px 15px 40px;
+    padding: 5px 10px;
 
 }
 
