@@ -26,8 +26,6 @@ mongoose.connect('mongodb://egodon:kiwi123@ds035664.mlab.com:35664/chatapp');
 mongoose.Promise = global.Promise;
 let db  = mongoose.connection;
 
-
-//Check connection
 db.once('open', () => {
     console.log('Connected to MongoDB');
 });
@@ -35,7 +33,6 @@ db.once('open', () => {
 db.on('error', (err) => {
     console.log(err);
 });
-
 
 //-------------------- SOCKET.IO ------------------------
 

@@ -3,7 +3,8 @@ const io = require('socket.io-client');
 const client = io();
 
 // CSS
-import '../css/styles.css';
+import '../css/global-styles.css';
+import '../css/chat-styles.css';
 
 // JS
 import scrollToBottom from './modules/scrollToBottom';
@@ -11,7 +12,7 @@ import './libs/deparam';
 
 
 client.on('connect', () => {
-    const params= jQuery.deparam(window.location.search);
+    const params = jQuery.deparam(window.location.search);
 
     client.emit('join', params, (err) => {
         if (err){
@@ -21,6 +22,21 @@ client.on('connect', () => {
             console.log('No errors');
         }
     });
+
+    $('#message-form').on('submit', (e) => {
+        e.preventDefault();
+        const $messageTextbox = $('[name=message]');
+        client.emit('createMessage', {
+            text: $messageTextbox.val()
+        }, () => {
+            $messageTextbox.val('');
+        });
+    });
+
+    $('#leave-room-btn').on('click', () => {
+        window.location.href = '/';
+    });
+
 });
 
 client.on('disconnect', () => {
@@ -76,15 +92,5 @@ client.on('newMessage', (message) => {
 });
 
 
-
-$('#message-form').on('submit', (e) => {
-    e.preventDefault();
-    const $messageTextbox = $('[name=message]');
-    client.emit('createMessage', {
-        text: $messageTextbox.val()
-    }, () => {
-        $messageTextbox.val('');
-    });
-});
 
 
