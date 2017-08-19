@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 57);
+/******/ 	return __webpack_require__(__webpack_require__.s = 58);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -106,7 +106,7 @@ var utf8 = __webpack_require__(45);
 
 var base64encoder;
 if (global && global.ArrayBuffer) {
-  base64encoder = __webpack_require__(47);
+  base64encoder = __webpack_require__(46);
 }
 
 /**
@@ -164,7 +164,7 @@ var err = { type: 'error', data: 'parser error' };
  * Create a blob api even for blob builder when vendor prefixes exist
  */
 
-var Blob = __webpack_require__(48);
+var Blob = __webpack_require__(47);
 
 /**
  * Encodes a packet.
@@ -893,7 +893,7 @@ function localstorage() {
   } catch (e) {}
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
 
 /***/ }),
 /* 3 */
@@ -960,7 +960,7 @@ module.exports = function(a, b){
  * Expose `debug()` as the module.
  */
 
-exports = module.exports = __webpack_require__(49);
+exports = module.exports = __webpack_require__(48);
 exports.log = log;
 exports.formatArgs = formatArgs;
 exports.save = save;
@@ -1140,7 +1140,7 @@ function localstorage() {
   } catch (e) {}
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
 
 /***/ }),
 /* 6 */
@@ -12357,6 +12357,196 @@ return jQuery;
 /* 12 */
 /***/ (function(module, exports) {
 
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports) {
+
 /*
 	MIT License http://www.opensource.org/licenses/mit-license.php
 	Author Tobias Koppers @sokra
@@ -12436,7 +12626,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -12482,7 +12672,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(28);
+var	fixUrls = __webpack_require__(29);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -12795,7 +12985,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 /**
@@ -12837,196 +13027,6 @@ module.exports = function parseuri(str) {
 
     return uri;
 };
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
 
 
 /***/ }),
@@ -13135,7 +13135,7 @@ var on = __webpack_require__(24);
 var bind = __webpack_require__(25);
 var debug = __webpack_require__(2)('socket.io-client:manager');
 var indexOf = __webpack_require__(22);
-var Backoff = __webpack_require__(56);
+var Backoff = __webpack_require__(55);
 
 /**
  * IE6+ hasOwnProperty
@@ -13707,8 +13707,8 @@ Manager.prototype.onreconnect = function () {
 
 var XMLHttpRequest = __webpack_require__(8);
 var XHR = __webpack_require__(41);
-var JSONP = __webpack_require__(51);
-var websocket = __webpack_require__(52);
+var JSONP = __webpack_require__(50);
+var websocket = __webpack_require__(51);
 
 /**
  * Export transports.
@@ -14109,7 +14109,7 @@ module.exports = function(arr, obj){
 
 var parser = __webpack_require__(6);
 var Emitter = __webpack_require__(7);
-var toArray = __webpack_require__(55);
+var toArray = __webpack_require__(54);
 var on = __webpack_require__(24);
 var bind = __webpack_require__(25);
 var debug = __webpack_require__(2)('socket.io-client:socket');
@@ -14583,12 +14583,40 @@ module.exports = function(obj, fn){
 
 /***/ }),
 /* 26 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(27);
+var content = __webpack_require__(28);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -14596,7 +14624,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(13)(content, options);
+var update = __webpack_require__(14)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -14613,21 +14641,21 @@ if(false) {
 }
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(12)(undefined);
+exports = module.exports = __webpack_require__(13)(undefined);
 // imports
 
 
 // module
-exports.push([module.i, "*{box-sizing:border-box;margin:0;padding:0;font-family:Roboto,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif;font-weight:300;font-size:.95rem}button,button:hover{border:none;color:#fff;padding:10px}li,ul{list-style-position:inside}h1{font-weight:600;text-align:center;font-size:1.5rem}button{background:#ffca28;cursor:pointer;transition:background .3s ease}button:hover{background:#ffd54f}button:disabled{cursor:default;background:#698ea5}", ""]);
+exports.push([module.i, "*{box-sizing:border-box;margin:0;padding:0;font-family:Roboto,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif;font-weight:300;font-size:.95rem}button,button:hover{border:none;color:#fff;padding:10px}li,ul{list-style-position:inside}h1{font-weight:600;text-align:center;font-size:1.5rem}button{background:#ffa726;cursor:pointer;transition:background .3s ease}button:hover{background:#ffb74d}button:disabled{cursor:default;background:#ffd54f}", ""]);
 
 // exports
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 
@@ -14722,7 +14750,6 @@ module.exports = function (css) {
 
 
 /***/ }),
-/* 29 */,
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -14831,7 +14858,7 @@ exports.Socket = __webpack_require__(23);
  * Module dependencies.
  */
 
-var parseuri = __webpack_require__(14);
+var parseuri = __webpack_require__(15);
 var debug = __webpack_require__(2)('socket.io-client:url');
 
 /**
@@ -15477,8 +15504,8 @@ var Emitter = __webpack_require__(10);
 var debug = __webpack_require__(5)('engine.io-client:socket');
 var index = __webpack_require__(22);
 var parser = __webpack_require__(1);
-var parseuri = __webpack_require__(14);
-var parsejson = __webpack_require__(54);
+var parseuri = __webpack_require__(15);
+var parsejson = __webpack_require__(53);
 var parseqs = __webpack_require__(3);
 
 /**
@@ -17011,38 +17038,10 @@ function noop() {}
 
 }(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(46)(module), __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), __webpack_require__(0)))
 
 /***/ }),
 /* 46 */
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 47 */
 /***/ (function(module, exports) {
 
 /*
@@ -17115,7 +17114,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -17218,7 +17217,7 @@ module.exports = (function() {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -17234,7 +17233,7 @@ exports.coerce = coerce;
 exports.disable = disable;
 exports.enable = enable;
 exports.enabled = enabled;
-exports.humanize = __webpack_require__(50);
+exports.humanize = __webpack_require__(49);
 
 /**
  * The currently active debug mode names, and names to skip.
@@ -17426,7 +17425,7 @@ function coerce(val) {
 
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, exports) {
 
 /**
@@ -17584,7 +17583,7 @@ function plural(ms, n, name) {
 
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {
@@ -17822,7 +17821,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -17839,7 +17838,7 @@ var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 var NodeWebSocket;
 if (typeof window === 'undefined') {
   try {
-    NodeWebSocket = __webpack_require__(53);
+    NodeWebSocket = __webpack_require__(52);
   } catch (e) { }
 }
 
@@ -18115,13 +18114,13 @@ WS.prototype.check = function () {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/**
@@ -18159,7 +18158,7 @@ module.exports = function parsejson(data) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = toArray
@@ -18178,7 +18177,7 @@ function toArray(list, index) {
 
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, exports) {
 
 
@@ -18269,25 +18268,161 @@ Backoff.prototype.setJitter = function(jitter){
 
 
 /***/ }),
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {// swearjar-node
+var path = __webpack_require__(62);
+var swearjar = {
+
+  _badWords: {},
+
+  scan: function (text, callback) {
+    var word, key, match;
+    var regex = /\w+/g
+
+    while (match = regex.exec(text)) {
+      word = match[0];
+      key  = word.toLowerCase();
+
+      if (key in this._badWords && Array.isArray(this._badWords[key])) {
+        if (callback(word, match.index, this._badWords[key]) === false) {
+          break;
+        }
+      }
+    }
+  },
+
+  profane: function (text) {
+    var profane = false;
+
+    this.scan(text, function (word, index, categories) {
+      profane = true;
+      return false; // Stop on first match
+    });
+
+    return profane;
+  },
+
+  scorecard: function (text) {
+    var scorecard = {};
+
+    this.scan(text, function (word, index, categories) {
+      for (var i = 0; i < categories.length; i+=1) {
+        var cat = categories[i];
+
+        if (cat in scorecard) {
+          scorecard[cat] += 1;
+        } else {
+          scorecard[cat] = 1;
+        }
+      };
+    });
+
+    return scorecard;
+  },
+
+  censor: function (text) {
+    var censored = text;
+
+    this.scan(text, function (word, index, categories) {
+      censored = censored.substr(0, index) +
+                  word.replace(/\S/g, '*') +
+                  censored.substr(index + word.length);
+    });
+
+    return censored;
+  },
+
+  loadBadWords: function (relativePath) {
+    var basePath = path.dirname(module.parent.filename);
+    var fullPath = path.join(basePath, relativePath);
+    this._badWords = __webpack_require__(63)("" + fullPath);
+  },
+  
+  setBadWords: function (badWords) {
+    this._badWords = badWords || {};
+  }
+};
+
+swearjar._badWords = __webpack_require__(57);
+
+module.exports = swearjar;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module)))
+
+/***/ }),
 /* 57 */
+/***/ (function(module, exports) {
+
+module.exports = {"anus":["sexual"],"arse":["insult"],"arsehole":["insult"],"ass":["sexual","insult"],"ass-hat":["insult"],"ass-pirate":["discriminatory"],"assbag":["insult"],"assbandit":["discriminatory"],"assbanger":["discriminatory"],"assbite":["insult"],"assclown":["sexual"],"asscock":["insult"],"asscracker":["sexual"],"assface":["sexual"],"assfuck":["sexual"],"assfucker":["discriminatory"],"assgoblin":["discriminatory"],"asshat":["sexual"],"asshead":["insult"],"asshole":["insult"],"asshopper":["discriminatory"],"assjacker":["discriminatory"],"asslick":["insult"],"asslicker":["insult"],"assmonkey":["insult"],"assmunch":["insult"],"assmuncher":["sexual"],"assnigger":["discriminatory"],"asspirate":["discriminatory"],"assshit":["insult"],"assshole":["sexual"],"asssucker":["insult"],"asswad":["sexual"],"asswipe":["sexual"],"bampot":["insult"],"bastard":["insult"],"beaner":["discriminatory"],"beastial":["sexual"],"beastiality":["sexual"],"beastility":["sexual"],"bestial":["sexual"],"bestiality":["sexual"],"bitch":["insult"],"bitchass":["insult"],"bitcher":["insult"],"bitchin":["inappropriate"],"bitching":["inappropriate"],"bitchtit":["discriminatory"],"bitchy":["insult"],"blow job":["sexual"],"blowjob":["sexual"],"bollocks":["sexual"],"bollox":["sexual"],"boner":["sexual"],"bullshit":["inappropriate"],"butt plug":["sexual"],"camel toe":["sexual"],"choad":["sexual"],"chode":["sexual"],"clit":["sexual"],"clitface":["insult"],"clitfuck":["sexual"],"clusterfuck":["inappropriate"],"cock":["sexual"],"cockbite":["insult"],"cockburger":["insult"],"cockface":["insult"],"cockfucker":["insult"],"cockhead":["insult"],"cockmonkey":["insult"],"cocknose":["insult"],"cocknugget":["insult"],"cockshit":["insult"],"cocksuck":["sexual"],"cocksucked":["sexual"],"cocksucker":["discriminatory","sexual"],"cocksucking":["sexual","discriminatory"],"cocksucks":["sexual","discriminatory"],"coochie":["sexual"],"coochy":["sexual"],"cooter":["sexual"],"cum":["sexual"],"cumbubble":["insult"],"cumdumpster":["sexual"],"cummer":["sexual"],"cumming":["sexual"],"cumshot":["sexual"],"cumslut":["sexual","insult"],"cumtart":["insult"],"cunillingus":["sexual"],"cunnie":["sexual"],"cunnilingus":["sexual"],"cunt":["insult","sexual"],"cuntface":["insult"],"cunthole":["sexual"],"cuntlick":["sexual"],"cuntlicker":["sexual","discriminatory"],"cuntlicking":["sexual"],"cuntrag":["insult"],"cuntslut":["insult"],"cyberfuc":["sexual"],"cyberfuck":["sexual"],"cyberfucked":["sexual"],"cyberfucker":["sexual"],"cyberfucking":["sexual"],"dago":["discriminatory"],"damn":["inappropriate"],"deggo":["discriminatory"],"dick":["sexual","insult"],"dickbag":["insult"],"dickbeaters":["sexual"],"dickface":["insult"],"dickfuck":["insult"],"dickhead":["insult"],"dickhole":["sexual"],"dickjuice":["sexual"],"dickmilk":["sexual"],"dickslap":["sexual"],"dickwad":["insult"],"dickweasel":["insult"],"dickweed":["insult"],"dickwod":["insult"],"dildo":["sexual"],"dink":["insult","sexual"],"dipshit":["insult"],"doochbag":["insult"],"dookie":["inappropriate"],"douche":["insult"],"douche-fag":["insult"],"douchebag":["insult"],"douchewaffle":["discriminatory"],"dumass":["insult"],"dumb ass":["insult"],"dumbass":["insult"],"dumbfuck":["insult"],"dumbshit":["insult"],"dumshit":["insult"],"ejaculate":["sexual"],"ejaculated":["sexual"],"ejaculates":["sexual"],"ejaculating":["sexual"],"ejaculation":["sexual"],"fag":["discriminatory"],"fagbag":["discriminatory"],"fagfucker":["discriminatory"],"fagging":["discriminatory"],"faggit":["discriminatory"],"faggot":["discriminatory"],"faggotcock":["discriminatory"],"faggs":["discriminatory"],"fagot":["discriminatory"],"fags":["discriminatory"],"fagtard":["discriminatory"],"fart":["inappropriate"],"farted":["inappropriate"],"farting":["inappropriate"],"farty":["inappropriate"],"fatass":["insult"],"felatio":["sexual"],"fellatio":["sexual"],"feltch":["sexual"],"fingerfuck":["sexual"],"fingerfucked":["sexual"],"fingerfucker":["sexual"],"fingerfucking":["sexual"],"fingerfucks":["sexual"],"fistfuck":["sexual"],"fistfucked":["sexual"],"fistfucker":["sexual"],"fistfucking":["sexual"],"flamer":["discriminatory"],"fuck":["sexual"],"fuckass":["insult"],"fuckbag":["insult"],"fuckboy":["insult"],"fuckbrain":["insult"],"fuckbutt":["sexual"],"fucked":["sexual"],"fucker":["sexual","insult"],"fuckersucker":["insult"],"fuckface":["insult"],"fuckhead":["sexual"],"fuckhole":["insult"],"fuckin":["sexual"],"fucking":["sexual"],"fuckme":["sexual"],"fucknut":["insult"],"fucknutt":["insult"],"fuckoff":["insult"],"fuckstick":["sexual"],"fucktard":["insult"],"fuckup":["insult"],"fuckwad":["insult"],"fuckwit":["insult"],"fuckwitt":["insult"],"fudgepacker":["discriminatory"],"fuk":["sexual"],"gangbang":["sexual"],"gangbanged":["sexual"],"goddamn":["inappropriate","blasphemy"],"goddamnit":["inappropriate","blasphemy"],"gooch":["sexual"],"gook":["discriminatory"],"gringo":["discriminatory"],"guido":["discriminatory"],"handjob":["sexual"],"hardcoresex":["sexual"],"heeb":["discriminatory"],"hell":["inappropriate"],"ho":["discriminatory"],"hoe":["discriminatory"],"homo":["discriminatory"],"homodumbshit":["insult"],"honkey":["discriminatory"],"horniest":["sexual"],"horny":["sexual"],"hotsex":["sexual"],"humping":["sexual"],"jackass":["insult"],"jap":["discriminatory"],"jigaboo":["discriminatory"],"jism":["sexual"],"jiz":["sexual"],"jizm":["sexual"],"jizz":["sexual"],"jungle bunny":["discriminatory"],"junglebunny":["discriminatory"],"kike":["discriminatory"],"kock":["sexual"],"kondum":["sexual"],"kooch":["sexual"],"kootch":["sexual"],"kum":["sexual"],"kumer":["sexual"],"kummer":["sexual"],"kumming":["sexual"],"kums":["sexual"],"kunilingus":["sexual"],"kunt":["sexual"],"kyke":["discriminatory"],"lezzie":["discriminatory"],"lust":["sexual"],"lusting":["sexual"],"mcfagget":["discriminatory"],"mick":["discriminatory"],"minge":["sexual"],"mothafuck":["sexual"],"mothafucka":["sexual","insult"],"mothafuckaz":["sexual"],"mothafucked":["sexual"],"mothafucker":["sexual","insult"],"mothafuckin":["sexual"],"mothafucking":["sexual"],"mothafucks":["sexual"],"motherfuck":["sexual"],"motherfucked":["sexual"],"motherfucker":["sexual","insult"],"motherfuckin":["sexual"],"motherfucking":["sexual"],"muff":["sexual"],"muffdiver":["discriminatory","sexual"],"munging":["sexual"],"negro":["discriminatory"],"nigga":["discriminatory"],"nigger":["discriminatory"],"niglet":["discriminatory"],"nut sack":["sexual"],"nutsack":["sexual"],"orgasim":["sexual"],"orgasm":["sexual"],"paki":["discriminatory"],"panooch":["sexual"],"pecker":["sexual"],"peckerhead":["insult"],"penis":["sexual"],"penisfucker":["discriminatory"],"penispuffer":["discriminatory"],"phonesex":["sexual"],"phuk":["sexual"],"phuked":["sexual"],"phuking":["sexual"],"phukked":["sexual"],"phukking":["sexual"],"phuks":["sexual"],"phuq":["sexual"],"pis":["sexual"],"pises":["sexual"],"pisin":["sexual"],"pising":["sexual"],"pisof":["sexual"],"piss":["inappropriate"],"pissed":["inappropriate"],"pisser":["sexual"],"pisses":["sexual"],"pissflaps":["sexual"],"pissin":["sexual"],"pissing":["sexual"],"pissoff":["sexual"],"polesmoker":["discriminatory"],"pollock":["discriminatory"],"poon":["sexual"],"poonani":["sexual"],"poonany":["sexual"],"poontang":["sexual"],"porch monkey":["discriminatory"],"porchmonkey":["discriminatory"],"porn":["sexual"],"porno":["sexual"],"pornography":["sexual"],"pornos":["sexual"],"prick":["sexual"],"punanny":["sexual"],"punta":["insult"],"pusies":["sexual","insult"],"pussies":["sexual","insult"],"pussy":["sexual","insult"],"pussylicking":["sexual"],"pusy":["sexual"],"puto":["insult"],"renob":["sexual"],"rimjob":["sexual"],"ruski":["discriminatory"],"sandnigger":["discriminatory"],"schlong":["sexual"],"scrote":["sexual"],"shit":["sexual","inappropriate"],"shitass":["insult"],"shitbag":["insult"],"shitbagger":["insult"],"shitbrain":["insult"],"shitbreath":["insult"],"shitcunt":["insult"],"shitdick":["insult"],"shited":["sexual"],"shitface":["insult"],"shitfaced":["inappropriate","insult"],"shitfull":["sexual"],"shithead":["insult"],"shithole":["insult"],"shithouse":["inappropriate"],"shiting":["sexual"],"shitspitter":["sexual"],"shitstain":["inappropriate","insult"],"shitted":["sexual"],"shitter":["sexual"],"shittiest":["inappropriate"],"shitting":["inappropriate"],"shitty":["inappropriate"],"shity":["sexual"],"shiz":["inappropriate"],"shiznit":["inappropriate"],"skank":["insult"],"skeet":["sexual"],"skullfuck":["sexual"],"slut":["discriminatory"],"slutbag":["discriminatory"],"sluts":["sexual"],"smeg":["inappropriate"],"smut":["sexual"],"snatch":["sexual"],"spic":["discriminatory"],"spick":["discriminatory"],"splooge":["sexual"],"spunk":["sexual"],"tard":["discriminatory"],"testicle":["sexual"],"thundercunt":["insult"],"tit":["sexual"],"tits":["sexual"],"titfuck":["sexual"],"tittyfuck":["sexual"],"twat":["sexual"],"twatlips":["insult"],"twatwaffle":["discriminatory"],"unclefucker":["discriminatory"],"va-j-j":["sexual"],"vag":["sexual"],"vagina":["sexual"],"vjayjay":["sexual"],"wank":["sexual"],"wetback":["discriminatory"],"whore":["insult"],"whorebag":["insult"],"whoreface":["insult"]}
+
+/***/ }),
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function($) {
 
-__webpack_require__(26);
+__webpack_require__(27);
 
-__webpack_require__(58);
+__webpack_require__(59);
 
 var io = __webpack_require__(30);
 var client = io();
 
+var _require = __webpack_require__(61),
+    isRealString = _require.isRealString;
+
+var swearJar = __webpack_require__(56);
+
 client.on('connect', function () {
     client.emit('getRooms');
 
-    // Check for input text in "Create Room" and disable "Current Rooms" select if needed
+    // Client-side validation
+    var $formInput = $('#index-form input[type=text]');
+    var $validationMessage = $('#validation-message');
+    var $joinBtn = $('#join-btn');
     var $createRoomInput = $('#create-room-input');
     var $roomSelect = $('#room-selection');
+
+    // Join Button disabled until input forms are filled
+    $joinBtn.click(function (e) {
+        var nameInput = $('#display-name-input').val().toString();
+        var roomInput = $('#create-room-input').val().toString();
+        $validationMessage.html('');
+        if (!isRealString(nameInput)) {
+            e.preventDefault();
+            $joinBtn.prop('disabled', 'disabled');
+            var html = '<div class="validation">You need a name.</div>';
+            $validationMessage.append(html);
+        }
+        if (!isRealString(roomInput) && $roomSelect[0].selectedIndex === 0) {
+            e.preventDefault();
+            $joinBtn.prop('disabled', 'disabled');
+            var _html = '<div class="validation">You need to create or join an existing room.</div>';
+            $validationMessage.append(_html);
+        }
+        $joinBtn.prop('disabled', false);
+    });
+
+    // Check for censored words
+    $formInput.on('keyup', function (e) {
+        var nameInput = $('#display-name-input').val().toString();
+        var roomInput = $('#create-room-input').val().toString();
+        if (swearJar.profane(nameInput) || swearJar.profane(roomInput)) {
+            e.target.className = 'invalid-input';
+            var html = '<div class="validation">Hey! No bad words.</div>';
+            $validationMessage.html(html);
+            $joinBtn.prop('disabled', 'disabled');
+        } else {
+            e.target.className = '';
+            $joinBtn.prop('disabled', false);
+            $validationMessage.html('');
+        }
+    });
+
+    // Check for input text in "Create Room" and disable "Current Rooms" select if needed
     $createRoomInput.change(function () {
         if ($createRoomInput.val()) {
             $roomSelect.prop('disabled', 'disabled');
@@ -18325,13 +18460,13 @@ function capitalizeFirstLetters(word) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(59);
+var content = __webpack_require__(60);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -18339,7 +18474,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(13)(content, options);
+var update = __webpack_require__(14)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -18356,18 +18491,288 @@ if(false) {
 }
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(12)(undefined);
+exports = module.exports = __webpack_require__(13)(undefined);
 // imports
 
 
 // module
-exports.push([module.i, ".centered-form{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;height:100vh;width:100vw;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;background:#2e3192;background:-webkit-gradient(left top,right bottom,color-stop(0,#2e3192),color-stop(52%,#249ccb),color-stop(90%,#1deaf4),color-stop(100%,#1bffff));background:linear-gradient(135deg,#2e3192,#249ccb 52%,#1deaf4 90%,#1bffff);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#2e3192\",endColorstr=\"#1bffff\",GradientType=1)}.centered-form__form{background:hsla(0,0%,98%,.9);border:1px solid #e1e1e1;border-radius:5px;padding:20px 40px;margin:20px;width:310px}.form-field{margin:20px 0}.form-field>*{width:100%}.form-field label{display:block;margin-bottom:7px}.form-field input,.form-field select{border:1px solid #e1e1e1;padding:10px}", ""]);
+exports.push([module.i, ".header-under-line{margin-top:1rem;border-bottom:1px solid #ccc}.validation-message{min-height:50px}.centered-form{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center;height:100vh;width:100vw;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;background:#2e3192;background:linear-gradient(135deg,#2e3192,#249ccb 52%,#1deaf4 90%,#1bffff);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#2e3192\",endColorstr=\"#1bffff\",GradientType=1)}.centered-form__form{background:hsla(0,0%,98%,.9);border:1px solid #e1e1e1;border-radius:5px;padding:20px 40px;margin:20px;width:400px}.form-field{margin:20px 0}.form-field>*{width:100%}.form-field label{display:block;margin-bottom:7px}.form-field input,.form-field select{border:1px solid #e1e1e1;padding:10px}.form-field:last-child{margin-top:42px}.form-field button{-webkit-transform:translateX(50%);transform:translateX(50%);width:50%}.validation{border:1px solid;margin:7px 0;padding:10px 15px;color:#d8000c;background-color:hsla(0,100%,86%,.3);font-size:15px;-webkit-animation:a .2s ease;animation:a .2s ease}.form-field .invalid-input{border:1px solid #d8000c}.invalid-input:focus{outline:none}@-webkit-keyframes a{0%{opacity:0}to{opacity:1}}@keyframes a{0%{opacity:0}to{opacity:1}}", ""]);
 
 // exports
 
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var isRealString = function isRealString(str) {
+    return typeof str === 'string' && str.trim().length > 0;
+};
+
+module.exports = { isRealString: isRealString };
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var map = {
+	"./config/en_US": 57,
+	"./config/en_US.json": 57,
+	"./swearjar": 56,
+	"./swearjar.js": 56
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number or string
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 63;
 
 /***/ })
 /******/ ]);

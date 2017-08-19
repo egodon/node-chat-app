@@ -40,12 +40,6 @@ db.on('error', (err) => {
 io.on('connection', (socket) => {
 
     socket.on('join', (params, callback) => {
-        if (!isRealString(params.name) || !isRealString(params.room)) {
-            return callback('Name and room name are required.')
-        }
-        if (swearjar.profane(params.name) || swearjar.profane(params.room)){
-            return callback('Please refrain from using profanity in your display name or room name.')
-        }
         const room = params.room.toLowerCase();
         socket.join(room);
         users.removeUser(socket.id);

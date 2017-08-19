@@ -11,18 +11,20 @@
 </head>
 <body class="centered-form">
     <div class="centered-form__form">
-        <form action="/chat.html">
+
+        <form id="index-form" action="/chat.html">
             <div class="form-field">
                 <h1>CHAT APP</h1>
                 <div class="header-under-line"></div>
+                <div id="validation-message" class="validation-message"></div>
             </div>
             <div class="form-field">
                 <label >Display name</label>
-                <input type="text" name="name" autofocus>
+                <input id="display-name-input" type="text" name="name" autofocus autocomplete="off">
             </div>
             <div class="form-field">
                 <label>Create a Room</label>
-                <input type="text" name="room" id="create-room-input">
+                <input type="text" name="room" id="create-room-input" autocomplete="off">
             </div>
             <div class="form-field">
                 <label>Active Rooms</label>
@@ -30,7 +32,7 @@
                 </select>
             </div>
             <div class="form-field">
-                <button>Join</button>
+                <button id="join-btn">Join</button>
             </div>
         </form>
     </div>

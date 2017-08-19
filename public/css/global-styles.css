@@ -23,14 +23,14 @@ h1 {
     font-size: 1.5rem
 }
 button {
-    background: #FFCA28;
+    background: #FFA726;
     cursor: pointer;
     transition: background .3s ease
 }
 button:hover {
-    background: #FFD54F;
+    background: #FFB74D;
 }
 button:disabled {
     cursor: default;
-    background: #698ea5
+    background: #FFD54F;
 }
